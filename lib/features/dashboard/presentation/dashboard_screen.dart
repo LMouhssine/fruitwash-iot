@@ -25,22 +25,22 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          SectionCard(
+          const SectionCard(
             title: 'Statistiques rapides',
             child: Row(
-              children: const [
+              children: [
                 Expanded(child: _StatTile(label: 'Appareils', value: '2')),
                 SizedBox(width: 12),
                 Expanded(child: _StatTile(label: 'Cycles', value: '0')),
               ],
             ),
           ),
-          SizedBox(height: 12),
-          SectionCard(
+          const SizedBox(height: 12),
+          const SectionCard(
             title: 'Accès rapide',
             child: Wrap(
               spacing: 8,
-              children: const [
+              children: [
                 _QuickButton(label: 'Historique', icon: Icons.history, route: '/history'),
                 _QuickButton(label: 'Alertes', icon: Icons.notifications_active, route: '/alerts'),
                 _QuickButton(label: 'Appairer', icon: Icons.link, route: '/pair'),
