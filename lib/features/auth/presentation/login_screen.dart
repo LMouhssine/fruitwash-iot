@@ -51,6 +51,10 @@ class LoginScreen extends StatelessWidget {
                       }
                     },
                   ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pushNamed('/register'),
+                    child: const Text('Créer un compte'),
+                  ),
                 ],
               ),
             ),

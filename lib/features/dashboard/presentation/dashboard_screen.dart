@@ -25,13 +25,27 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          const SectionCard(
+          SectionCard(
             title: 'Statistiques rapides',
             child: Row(
-              children: [
+              children: const [
                 Expanded(child: _StatTile(label: 'Appareils', value: '2')),
                 SizedBox(width: 12),
                 Expanded(child: _StatTile(label: 'Cycles', value: '0')),
+              ],
+            ),
+          ),
+          SizedBox(height: 12),
+          SectionCard(
+            title: 'Accès rapide',
+            child: Wrap(
+              spacing: 8,
+              children: const [
+                _QuickButton(label: 'Historique', icon: Icons.history, route: '/history'),
+                _QuickButton(label: 'Alertes', icon: Icons.notifications_active, route: '/alerts'),
+                _QuickButton(label: 'Appairer', icon: Icons.link, route: '/pair'),
+                _QuickButton(label: 'Planifier', icon: Icons.schedule, route: '/schedule'),
+                _QuickButton(label: 'Profil', icon: Icons.person, route: '/profile'),
               ],
             ),
           ),
@@ -95,6 +109,22 @@ class _StatTile extends StatelessWidget {
           Text(value, style: Theme.of(context).textTheme.headlineSmall),
         ],
       ),
+    );
+  }
+}
+
+class _QuickButton extends StatelessWidget {
+  const _QuickButton({required this.label, required this.icon, required this.route});
+  final String label;
+  final IconData icon;
+  final String route;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: () => Navigator.pushNamed(context, route),
+      icon: Icon(icon),
+      label: Text(label),
     );
   }
 }
