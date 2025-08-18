@@ -11,12 +11,14 @@ import '../../features/alerts/presentation/alerts_screen.dart';
 import '../../features/pairing/presentation/pair_device_screen.dart';
 import '../../features/schedule/presentation/schedule_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/test/presentation/test_firebase_screen.dart';
 
 class AppRouter {
-  static const String initialRoute = '/';
+  static const String initialRoute = '/test';
 
   static Map<String, WidgetBuilder> get routes => {
         '/': (context) => const LoginScreen(),
+        '/test': (context) => const TestFirebaseScreen(),
         '/dashboard': (context) => const DashboardScreen(),
         '/devices': (context) => const DevicesScreen(),
         '/wash': (context) => const WashScreen(),
