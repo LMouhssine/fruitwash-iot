@@ -48,3 +48,12 @@ app.*.map.json
 google-services.json
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
+
+# Environment variables and secrets
+.env
+.env.local
+.env.production
+.env.staging
+
+# Claude Code settings
+.claude/

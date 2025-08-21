@@ -2,16 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-// Configuration Firebase basée sur google-services.json
-class FirebaseConfig {
-  static const String apiKey = 'AIzaSyA02BFcoWZyUw08kmYEckeIrlegAqX-mZI';
-  static const String appId = '1:804359576650:android:24de77e9ff6d539f7d9ab3';
-  static const String messagingSenderId = '804359576650';
-  static const String projectId = 'esp32-moha';
-  static const String databaseUrl = 'https://esp32-moha-default-rtdb.europe-west1.firebasedatabase.app';
-  static const String storageBucket = 'esp32-moha.firebasestorage.app';
-}
-
 final firebaseInitializationProvider = FutureProvider<FirebaseApp>((ref) async {
   try {
     if (kDebugMode) {
@@ -26,43 +16,75 @@ final firebaseInitializationProvider = FutureProvider<FirebaseApp>((ref) async {
       if (kDebugMode) print('Initialisation mobile avec fichiers de configuration');
       return await Firebase.initializeApp();
     } else if (kIsWeb) {
-      // Web - utilise les variables d'environnement si disponibles, sinon config hardcodée
-      const String envApiKey = String.fromEnvironment('FIREBASE_API_KEY');
-      const String envAppId = String.fromEnvironment('FIREBASE_APP_ID');
-      const String envMessagingSenderId = String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID');
-      const String envProjectId = String.fromEnvironment('FIREBASE_PROJECT_ID');
-      const String envDatabaseUrl = String.fromEnvironment('FIREBASE_DATABASE_URL');
-      const String envStorageBucket = String.fromEnvironment('FIREBASE_STORAGE_BUCKET');
+      // Web - nécessite des variables d'environnement
+      const String apiKey = String.fromEnvironment('FIREBASE_API_KEY');
+      const String appId = String.fromEnvironment('FIREBASE_APP_ID');
+      const String messagingSenderId = String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID');
+      const String projectId = String.fromEnvironment('FIREBASE_PROJECT_ID');
+      const String databaseUrl = String.fromEnvironment('FIREBASE_DATABASE_URL');
+      const String storageBucket = String.fromEnvironment('FIREBASE_STORAGE_BUCKET');
 
-      final bool hasEnvConfig = [envApiKey, envAppId, envMessagingSenderId, envProjectId, envDatabaseUrl, envStorageBucket]
-          .every((e) => e.isNotEmpty);
+      if ([apiKey, appId, messagingSenderId, projectId, databaseUrl, storageBucket].any((e) => e.isEmpty)) {
+        throw Exception(
+          'Configuration Firebase manquante pour le web. '
+          'Fournissez les valeurs --dart-define lors de la compilation:\n'
+          'flutter run -d web --dart-define=FIREBASE_API_KEY=your_key --dart-define=FIREBASE_APP_ID=your_app_id ...'
+        );
+      }
 
-      if (kDebugMode) print('Initialisation web avec config ${hasEnvConfig ? "d'environnement" : "par défaut"}');
+      if (kDebugMode) print('Initialisation web avec variables d\'environnement');
       
       return await Firebase.initializeApp(
-        options: FirebaseOptions(
-          apiKey: hasEnvConfig ? envApiKey : FirebaseConfig.apiKey,
-          appId: hasEnvConfig ? envAppId : FirebaseConfig.appId,
-          messagingSenderId: hasEnvConfig ? envMessagingSenderId : FirebaseConfig.messagingSenderId,
-          projectId: hasEnvConfig ? envProjectId : FirebaseConfig.projectId,
-          databaseURL: hasEnvConfig ? envDatabaseUrl : FirebaseConfig.databaseUrl,
-          storageBucket: hasEnvConfig ? envStorageBucket : FirebaseConfig.storageBucket,
+        options: const FirebaseOptions(
+          apiKey: apiKey,
+          appId: appId,
+          messagingSenderId: messagingSenderId,
+          projectId: projectId,
+          databaseURL: databaseUrl,
+          storageBucket: storageBucket,
         ),
       );
     } else {
       // Desktop (Windows/macOS/Linux)
-      if (kDebugMode) print('Initialisation desktop avec configuration hardcodée');
+      // Essaie d'abord l'initialisation par défaut (utilise google-services.json si présent)
+      if (kDebugMode) print('Initialisation desktop par défaut');
       
-      return await Firebase.initializeApp(
-        options: const FirebaseOptions(
-          apiKey: FirebaseConfig.apiKey,
-          appId: FirebaseConfig.appId,
-          messagingSenderId: FirebaseConfig.messagingSenderId,
-          projectId: FirebaseConfig.projectId,
-          databaseURL: FirebaseConfig.databaseUrl,
-          storageBucket: FirebaseConfig.storageBucket,
-        ),
-      );
+      try {
+        return await Firebase.initializeApp();
+      } catch (e) {
+        if (kDebugMode) {
+          print('Échec de l\'initialisation par défaut: $e');
+          print('Tentative avec variables d\'environnement...');
+        }
+        
+        // Fallback avec variables d'environnement pour desktop
+        const String apiKey = String.fromEnvironment('FIREBASE_API_KEY');
+        const String appId = String.fromEnvironment('FIREBASE_APP_ID');
+        const String messagingSenderId = String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID');
+        const String projectId = String.fromEnvironment('FIREBASE_PROJECT_ID');
+        const String databaseUrl = String.fromEnvironment('FIREBASE_DATABASE_URL');
+        const String storageBucket = String.fromEnvironment('FIREBASE_STORAGE_BUCKET');
+
+        if ([apiKey, appId, messagingSenderId, projectId, databaseUrl, storageBucket].any((e) => e.isEmpty)) {
+          throw Exception(
+            'Impossible d\'initialiser Firebase pour desktop.\n'
+            'Solutions:\n'
+            '1. Assurez-vous que google-services.json est présent dans le projet\n'
+            '2. Ou fournissez les variables d\'environnement avec --dart-define'
+          );
+        }
+        
+        return await Firebase.initializeApp(
+          options: const FirebaseOptions(
+            apiKey: apiKey,
+            appId: appId,
+            messagingSenderId: messagingSenderId,
+            projectId: projectId,
+            databaseURL: databaseUrl,
+            storageBucket: storageBucket,
+          ),
+        );
+      }
     }
   } catch (e) {
     if (kDebugMode) {
