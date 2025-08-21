@@ -1,13 +1,55 @@
 import 'package:flutter/material.dart';
-import '../../../core/widgets/primary_button.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../shared/widgets/loading_widget.dart';
+import '../../../shared/widgets/error_widget.dart';
+import '../../../core/providers/auth_providers.dart';
+import '../../../core/utils/validators.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    final authNotifier = ref.read(authNotifierProvider.notifier);
+    final success = await authNotifier.signInWithEmailPassword(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
+
+    if (success && mounted) {
+      Navigator.of(context).pushReplacementNamed('/dashboard');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-    final controller = TextEditingController();
+    final authState = ref.watch(authNotifierProvider);
+
+    ref.listen<AuthState>(authNotifierProvider, (previous, next) {
+      if (next.error != null) {
+        ErrorSnackBar.show(context, next.error!);
+        ref.read(authNotifierProvider.notifier).clearError();
+      }
+    });
+
     return Scaffold(
       body: Center(
         child: ConstrainedBox(
@@ -15,7 +57,7 @@ class LoginScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Form(
-              key: formKey,
+              key: _formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -25,7 +67,10 @@ class LoginScreen extends StatelessWidget {
                   const Text(
                     'FruitWash',
                     textAlign: TextAlign.center,
-                    style: null,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   const Text(
@@ -34,23 +79,44 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   TextFormField(
-                    controller: controller,
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
-                      labelText: 'Identifiant',
-                      prefixIcon: Icon(Icons.person_outline),
+                      labelText: 'Adresse e-mail',
+                      prefixIcon: Icon(Icons.email_outlined),
                     ),
-                    validator: (v) => (v == null || v.isEmpty) ? 'Requis' : null,
+                    validator: Validators.email,
                   ),
                   const SizedBox(height: 16),
-                  PrimaryButton(
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    decoration: InputDecoration(
+                      labelText: 'Mot de passe',
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword 
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
+                    ),
+                    validator: Validators.password,
+                  ),
+                  const SizedBox(height: 16),
+                  LoadingButton(
+                    isLoading: authState.isLoading,
+                    onPressed: _handleLogin,
                     label: 'Se connecter',
                     icon: Icons.login,
-                    onPressed: () {
-                      if (formKey.currentState?.validate() ?? false) {
-                        Navigator.of(context).pushReplacementNamed('/dashboard');
-                      }
-                    },
                   ),
+                  const SizedBox(height: 16),
                   TextButton(
                     onPressed: () => Navigator.of(context).pushNamed('/register'),
                     child: const Text('Créer un compte'),

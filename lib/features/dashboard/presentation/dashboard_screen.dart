@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
-import '../../../core/widgets/section_card.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../shared/widgets/section_card.dart';
+import '../../../shared/widgets/logout_widget.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Tableau de bord')),
+      appBar: AppBar(
+        title: const Text('Tableau de bord'),
+        actions: const [
+          LogoutButton(
+            tooltip: 'Se déconnecter',
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
