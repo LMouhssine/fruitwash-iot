@@ -37,12 +37,12 @@ final firebaseInitializationProvider = FutureProvider<FirebaseApp>((ref) async {
         
         return await Firebase.initializeApp(
           options: const FirebaseOptions(
-            apiKey: 'AIzaSyA02BFcoWZyUw08kmYEckeIrlegAqX-mZI',
-            appId: '1:804359576650:android:24de77e9ff6d539f7d9ab3',
-            messagingSenderId: '804359576650',
-            projectId: 'esp32-moha',
-            databaseURL: 'https://esp32-moha-default-rtdb.europe-west1.firebasedatabase.app',
-            storageBucket: 'esp32-moha.firebasestorage.app',
+            apiKey: 'DUMMY_KEY',
+            appId: 'DUMMY_APP_ID',
+            messagingSenderId: 'DUMMY_SENDER_ID',
+            projectId: 'DUMMY_PROJECT_ID',
+            databaseURL: 'http://localhost',
+            storageBucket: 'DUMMY_BUCKET',
           ),
         );
       }
@@ -50,13 +50,13 @@ final firebaseInitializationProvider = FutureProvider<FirebaseApp>((ref) async {
       if (kDebugMode) print('Initialisation web avec variables d\'environnement');
       
       return await Firebase.initializeApp(
-        options: const FirebaseOptions(
-          apiKey: 'AIzaSyA02BFcoWZyUw08kmYEckeIrlegAqX-mZI',
-          appId: '1:804359576650:android:24de77e9ff6d539f7d9ab3',
-          messagingSenderId: '804359576650',
-          projectId: 'esp32-moha',
-          databaseURL: 'https://esp32-moha-default-rtdb.europe-west1.firebasedatabase.app',
-          storageBucket: 'esp32-moha.firebasestorage.app',
+        options: FirebaseOptions(
+          apiKey: apiKey,
+          appId: appId,
+          messagingSenderId: messagingSenderId,
+          projectId: projectId,
+          databaseURL: databaseUrl,
+          storageBucket: storageBucket,
         ),
       );
     } else {
@@ -88,24 +88,24 @@ final firebaseInitializationProvider = FutureProvider<FirebaseApp>((ref) async {
           
           return await Firebase.initializeApp(
             options: const FirebaseOptions(
-              apiKey: 'AIzaSyCdBjDpBqNS4TJlmZ2ZqK8X1Y9W8mVnPqE',
-              appId: '1:123456789:web:abcdef123456',
-              messagingSenderId: '123456789',
-              projectId: 'esp32-moha-default-rtdb',
-              databaseURL: 'https://esp32-moha-default-rtdb.europe-west1.firebasedatabase.app',
-              storageBucket: 'esp32-moha-default-rtdb.appspot.com',
+              apiKey: 'DUMMY_KEY',
+              appId: 'DUMMY_APP_ID',
+              messagingSenderId: 'DUMMY_SENDER_ID',
+              projectId: 'DUMMY_PROJECT_ID',
+              databaseURL: 'http://localhost',
+              storageBucket: 'DUMMY_BUCKET',
             ),
           );
         }
         
         return await Firebase.initializeApp(
-          options: const FirebaseOptions(
-            apiKey: 'AIzaSyA02BFcoWZyUw08kmYEckeIrlegAqX-mZI',
-            appId: '1:804359576650:android:24de77e9ff6d539f7d9ab3',
-            messagingSenderId: '804359576650',
-            projectId: 'esp32-moha',
-            databaseURL: 'https://esp32-moha-default-rtdb.europe-west1.firebasedatabase.app',
-            storageBucket: 'esp32-moha.firebasestorage.app',
+          options: FirebaseOptions(
+            apiKey: apiKey,
+            appId: appId,
+            messagingSenderId: messagingSenderId,
+            projectId: projectId,
+            databaseURL: databaseUrl,
+            storageBucket: storageBucket,
           ),
         );
       }
