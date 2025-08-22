@@ -46,12 +46,7 @@ class ProfileScreen extends ConsumerWidget {
                   subtitle: Text(currentUser?.email ?? 'Non connecté'),
                   trailing: const Icon(Icons.edit),
                   onTap: () {
-                    // TODO: Implémenter l'édition du profil
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Édition du profil bientôt disponible'),
-                      ),
-                    );
+                    Navigator.of(context).pushNamed('/edit-profile');
                   },
                 ),
                 if (currentUser?.createdAt != null) ...[

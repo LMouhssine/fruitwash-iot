@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
 
 abstract class AuthRepository {
@@ -18,6 +19,11 @@ abstract class AuthRepository {
   Future<void> signOut();
   
   Future<void> updateDisplayName({required String displayName});
+  
+  Future<void> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
 }
 
 class FirebaseAuthRepository implements AuthRepository {
@@ -98,7 +104,36 @@ class FirebaseAuthRepository implements AuthRepository {
     await user.updateDisplayName(displayName);
   }
 
+  @override
+  Future<void> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      throw Exception('Utilisateur non connecté');
+    }
+
+    try {
+      // Réauthentification nécessaire pour changer le mot de passe
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+      
+      await user.reauthenticateWithCredential(credential);
+      await user.updatePassword(newPassword);
+    } on FirebaseAuthException catch (e) {
+      throw _mapFirebaseException(e);
+    }
+  }
+
   Exception _mapFirebaseException(FirebaseAuthException e) {
+    // Debug: afficher l'erreur complète en mode debug
+    if (kDebugMode) {
+      print('FirebaseAuthException: ${e.code} - ${e.message}');
+    }
+    
     switch (e.code) {
       case 'user-not-found':
         return Exception('Aucun utilisateur trouvé avec cette adresse e-mail.');
@@ -111,15 +146,19 @@ class FirebaseAuthRepository implements AuthRepository {
       case 'too-many-requests':
         return Exception('Trop de tentatives. Réessayez plus tard.');
       case 'operation-not-allowed':
-        return Exception('Cette opération n\'est pas autorisée.');
+        return Exception('L\'authentification par email/mot de passe n\'est pas activée dans Firebase.');
       case 'weak-password':
         return Exception('Le mot de passe est trop faible.');
       case 'email-already-in-use':
         return Exception('Cette adresse e-mail est déjà utilisée.');
       case 'invalid-credential':
         return Exception('Identifiants invalides.');
+      case 'invalid-api-key':
+        return Exception('Clé API Firebase invalide.');
+      case 'app-not-authorized':
+        return Exception('Application non autorisée à utiliser Firebase.');
       default:
-        return Exception('Une erreur s\'est produite. Veuillez réessayer.');
+        return Exception('Erreur Firebase (${e.code}): ${e.message}');
     }
   }
 }

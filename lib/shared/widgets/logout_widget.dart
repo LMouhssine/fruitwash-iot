@@ -80,6 +80,11 @@ class LogoutButton extends ConsumerWidget {
         if (context.mounted) {
           SuccessSnackBar.show(context, 'Déconnexion réussie');
           onLogoutSuccess?.call();
+          // Redirection vers l'écran de connexion
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            '/login',
+            (route) => false,
+          );
         }
       } catch (e) {
         if (context.mounted) {
@@ -162,6 +167,11 @@ class LogoutTile extends ConsumerWidget {
         if (context.mounted) {
           SuccessSnackBar.show(context, 'Déconnexion réussie');
           onLogoutSuccess?.call();
+          // Redirection vers l'écran de connexion
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            '/login',
+            (route) => false,
+          );
         }
       } catch (e) {
         if (context.mounted) {

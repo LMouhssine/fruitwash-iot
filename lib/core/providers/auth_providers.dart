@@ -1,16 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import '../../features/auth/domain/auth_repository.dart';
 import '../../features/auth/models/user_model.dart';
 import 'firebase_providers.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  // Ensure Firebase is initialized before creating the repository
+  // Utiliser Firebase Auth
   ref.watch(firebaseInitializationProvider);
+  if (kDebugMode) {
+    print('AuthProvider: Utilisation de Firebase Auth');
+  }
   return FirebaseAuthRepository();
 });
 
 final authStateProvider = StreamProvider<UserModel?>((ref) {
-  // Wait for Firebase initialization
+  // Attendre Firebase initialization
   final firebaseApp = ref.watch(firebaseInitializationProvider);
   
   return firebaseApp.when(

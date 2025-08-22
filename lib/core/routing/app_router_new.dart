@@ -12,16 +12,19 @@ import '../../features/alerts/presentation/alerts_screen.dart';
 import '../../features/pairing/presentation/pair_device_screen.dart';
 import '../../features/schedule/presentation/schedule_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
-import '../../features/test/presentation/test_firebase_screen.dart';
+import '../../features/machines/presentation/machines_screen.dart';
+import '../../features/machines/presentation/machine_test_screen.dart';
+import '../../features/profile/presentation/edit_profile_screen.dart';
 
 class AppRouter {
-  static const String initialRoute = AppRoutes.test;
+  static const String initialRoute = AppRoutes.login;
 
   static Map<String, WidgetBuilder> get routes => {
         AppRoutes.login: (context) => const LoginScreen(),
-        AppRoutes.test: (context) => const TestFirebaseScreen(),
+        AppRoutes.test: (context) => const MachineTestScreen(),
         AppRoutes.dashboard: (context) => const DashboardScreen(),
         AppRoutes.devices: (context) => const DevicesScreen(),
+        AppRoutes.machines: (context) => const MachinesScreen(),
         AppRoutes.wash: (context) => const WashScreen(),
         AppRoutes.settings: (context) => const SettingsScreen(),
         AppRoutes.register: (context) => const RegisterScreen(),
@@ -30,6 +33,7 @@ class AppRouter {
         AppRoutes.pairing: (context) => const PairDeviceScreen(),
         AppRoutes.schedule: (context) => const ScheduleScreen(),
         AppRoutes.profile: (context) => const ProfileScreen(),
+        AppRoutes.editProfile: (context) => const EditProfileScreen(),
       };
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {

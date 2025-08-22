@@ -39,8 +39,23 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       password: _passwordController.text,
     );
 
-    if (success && mounted) {
-      Navigator.of(context).pushReplacementNamed('/dashboard');
+    if (success) {
+      // Update display name after successful registration
+      final authRepository = ref.read(authRepositoryProvider);
+      try {
+        await authRepository.updateDisplayName(
+          displayName: _nameController.text.trim(),
+        );
+        if (mounted) {
+          SuccessSnackBar.show(context, 'Compte créé avec succès !');
+          Navigator.of(context).pushReplacementNamed('/dashboard');
+        }
+      } catch (e) {
+        if (mounted) {
+          ErrorSnackBar.show(context, 'Compte créé mais erreur lors de la mise à jour du nom');
+          Navigator.of(context).pushReplacementNamed('/dashboard');
+        }
+      }
     }
   }
 

@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../../core/providers/auth_providers.dart';
-import '../providers/dashboard_providers.dart';
-import '../../machines/models/machine_data.dart';
-import '../../machines/models/machine_event.dart';
 
-class DashboardScreen extends ConsumerWidget {
-  const DashboardScreen({super.key});
+class SimpleDashboardScreen extends ConsumerWidget {
+  const SimpleDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentUser = ref.watch(currentUserProvider);
-    final machinesAsync = ref.watch(safeMachinesProvider);
-    final stats = ref.watch(dashboardStatsProvider);
     final colors = Theme.of(context).colorScheme;
     
     return Scaffold(
@@ -60,18 +54,6 @@ class DashboardScreen extends ConsumerWidget {
                   ],
                 ),
                 titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-                background: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        colors.primary,
-                        colors.secondary,
-                      ],
-                    ),
-                  ),
-                ),
               ),
             ),
             actions: [
@@ -107,27 +89,28 @@ class DashboardScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Statistiques en temps réel
-                _buildStatsSection(context, stats),
+                // Statistiques simples
+                _buildStatsSection(context),
                 const SizedBox(height: 24),
                 
                 // Navigation principale avec animations
                 _buildMainNavigation(context, colors),
                 const SizedBox(height: 24),
                 
-                // Section activité récente
-                _buildRecentActivitySection(context, machinesAsync),
-                const SizedBox(height: 24),
-                
                 // Actions rapides
                 _buildQuickActions(context, colors),
-                const SizedBox(height: 100), // Espace pour FAB
+                const SizedBox(height: 100),
               ]),
             ),
           ),
         ],
       ),
-      floatingActionButton: _buildFloatingActionMenu(context, colors),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.pushNamed(context, '/test'),
+        icon: const Icon(Icons.science),
+        label: const Text('Test Firebase'),
+        backgroundColor: colors.primary,
+      ),
     );
   }
 
@@ -173,7 +156,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsSection(BuildContext context, DashboardStats stats) {
+  Widget _buildStatsSection(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -216,7 +199,7 @@ class DashboardScreen extends ConsumerWidget {
                 child: _buildStatCard(
                   context,
                   'Machines',
-                  stats.totalMachines.toString(),
+                  '2',
                   Icons.precision_manufacturing,
                   Colors.blue,
                 ),
@@ -226,7 +209,7 @@ class DashboardScreen extends ConsumerWidget {
                 child: _buildStatCard(
                   context,
                   'En ligne',
-                  stats.onlineMachines.toString(),
+                  '1',
                   Icons.online_prediction,
                   Colors.green,
                 ),
@@ -236,7 +219,7 @@ class DashboardScreen extends ConsumerWidget {
                 child: _buildStatCard(
                   context,
                   'Événements',
-                  stats.totalEvents.toString(),
+                  '5',
                   Icons.event,
                   Colors.orange,
                 ),
@@ -434,146 +417,6 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildRecentActivitySection(BuildContext context, AsyncValue machinesAsync) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.history, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              'Activité récente',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: machinesAsync.when(
-            data: (machines) {
-              final recentEvents = machines
-                  .expand((MachineData machine) => machine.events.map((event) => 
-                      {'machine': machine.machineId, 'event': event}))
-                  .toList()
-                ..sort((a, b) {
-                  final MachineEvent eventB = b['event'] as MachineEvent;
-                  final MachineEvent eventA = a['event'] as MachineEvent;
-                  return eventB.timestamp.compareTo(eventA.timestamp);
-                });
-
-              if (recentEvents.isEmpty) {
-                return Container(
-                  padding: const EdgeInsets.all(32),
-                  child: Column(
-                    children: [
-                      Icon(Icons.timeline, size: 48, color: Colors.grey[400]),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Aucune activité récente',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              return Column(
-                children: recentEvents.take(5).map<Widget>((item) {
-                  final machine = item['machine'] as String;
-                  final event = item['event'] as MachineEvent;
-                  return _buildActivityItem(context, machine, event);
-                }).toList(),
-              );
-            },
-            loading: () => Container(
-              padding: const EdgeInsets.all(32),
-              child: const Center(child: CircularProgressIndicator()),
-            ),
-            error: (_, __) => Container(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Erreur de chargement',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActivityItem(BuildContext context, String machine, MachineEvent event) {
-    final isHigh = event.niveau == 'HAUT';
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.black12, width: 0.5)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: (isHigh ? Colors.green : Colors.orange).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              isHigh ? Icons.trending_up : Icons.trending_down,
-              color: isHigh ? Colors.green : Colors.orange,
-              size: 16,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$machine - Niveau ${event.niveau}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
-                  ),
-                ),
-                Text(
-                  DateFormat('dd/MM/yyyy HH:mm').format(event.timestamp),
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            Icons.chevron_right,
-            color: Colors.grey[400],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildQuickActions(BuildContext context, ColorScheme colors) {
     final quickActions = [
       {'label': 'Historique', 'icon': Icons.history, 'route': '/history'},
@@ -640,15 +483,6 @@ class DashboardScreen extends ConsumerWidget {
       ],
     );
   }
-
-  Widget _buildFloatingActionMenu(BuildContext context, ColorScheme colors) {
-    return FloatingActionButton.extended(
-      onPressed: () => Navigator.pushNamed(context, '/test'),
-      icon: const Icon(Icons.science),
-      label: const Text('Test Firebase'),
-      backgroundColor: colors.primary,
-    );
-  }
 }
 
 class _NavItem {
@@ -666,6 +500,3 @@ class _NavItem {
     required this.color,
   });
 }
-
-
-

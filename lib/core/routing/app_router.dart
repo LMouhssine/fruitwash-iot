@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../features/dashboard/presentation/dashboard_screen.dart';
+import '../../features/dashboard/presentation/simple_dashboard_screen.dart';
 import '../../features/devices/presentation/devices_screen.dart';
 import '../../features/devices/presentation/device_detail_screen.dart';
 import '../../features/wash/presentation/wash_screen.dart';
@@ -19,7 +19,7 @@ class AppRouter {
   static Map<String, WidgetBuilder> get routes => {
         '/': (context) => const LoginScreen(),
         '/test': (context) => const TestFirebaseScreen(),
-        '/dashboard': (context) => const DashboardScreen(),
+        '/dashboard': (context) => const SimpleDashboardScreen(),
         '/devices': (context) => const DevicesScreen(),
         '/wash': (context) => const WashScreen(),
         '/settings': (context) => const SettingsScreen(),

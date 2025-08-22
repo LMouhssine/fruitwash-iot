@@ -25,6 +25,7 @@ class AppRoutes {
   static const String dashboard = '/dashboard';
   static const String devices = '/devices';
   static const String device = '/device';
+  static const String machines = '/machines';
   static const String wash = '/wash';
   static const String settings = '/settings';
   static const String history = '/history';
@@ -32,6 +33,7 @@ class AppRoutes {
   static const String pairing = '/pair';
   static const String schedule = '/schedule';
   static const String profile = '/profile';
+  static const String editProfile = '/edit-profile';
   static const String test = '/test';
 }
 
